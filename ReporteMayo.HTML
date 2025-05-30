@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía SIC: Análisis de Contratación y Tendencias del Sector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 
+        Paleta de Colores Seleccionada: Institucional SIC (Vinotinto y complementarios)
+        - Vinotinto SIC (Principal): #A31A36
+        - Amarillo Institucional (Secundario): #FFD900
+        - Azul Institucional (Acento): #0033A0
+        - Gris Oscuro (Texto Principal): #333333
+        - Gris Medio (Texto Secundario): #555555
+        - Fondo Tarjetas: #FFFFFF (Blanco)
+        - Fondo Principal: #F4F4F4 (Gris muy claro)
+
+        Plan de Narrativa y Estructura (Mantenido):
+        1. Título Principal y Subtítulo (con espacio para Logo SIC).
+        2. Sección 1: Panorama General de la Contratación.
+        3. Sección 2: Distribución Contractual por Área/Delegatura (Valor).
+        4. Sección 3: Perfil de Contratistas Destacados (Múltiples contratos por valor).
+        5. Sección 4: Contratistas con Múltiples Adjudicaciones (Tabla detallada).
+        6. Sección 5: Conclusiones y Tendencias Observadas.
+        7. Pie de Página: Fuente y fecha.
+
+        Plan de Visualización y Justificación (Mantenido - Confirmando NO SVG, NO MERMAID JS):
+        (Igual que la versión anterior, solo cambian los colores de las visualizaciones)
+    
+        Confirmación: No se utilizará SVG ni Mermaid JS. Todas las visualizaciones se basarán en Chart.js (Canvas) o HTML/CSS con Tailwind.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F4F4; 
+            color: #333333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; 
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; 
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+                max-height: 400px;
+            }
+        }
+        .stat-card {
+            background-color: #FFFFFF;
+            border-radius: 0.5rem;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.08);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #A31A36; /* Vinotinto para valores destacados */
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #555555; 
+            margin-top: 0.25rem;
+        }
+        .section-title {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #A31A36; /* Vinotinto para títulos de sección */
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+        .section-subtitle {
+            font-size: 1rem;
+            color: #555555;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .conclusion-item {
+            background-color: #FFFFFF;
+            border-left: 4px solid; /* Color se aplicará dinámicamente */
+            padding: 1.25rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px 0 rgba(0,0,0,0.05);
+            border: 1px solid #E0E0E0;
+        }
+        .conclusion-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        .table-container {
+            max-height: 400px; 
+            overflow-y: auto;
+            background-color: #FFFFFF;
+            border-radius: 0.5rem;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .sic-header {
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            margin-bottom: 1rem; 
+            padding-top: 1rem;
+        }
+        .sic-logo-placeholder {
+            font-size: 1.2rem; /* Ajustado para mejor proporción */
+            font-weight: bold;
+            color: #A31A36;
+            padding: 0.5rem 1rem;
+            border: 2px dashed #A31A36;
+            background-color: #FFFFFF;
+            border-radius: 0.25rem;
+            /* margin-right: 1.5rem; Si el título va al lado */
+        }
+        .header-title-group {
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #A31A36; /* Línea vinotinto bajo el título */
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="container mx-auto p-4 sm:p-8">
+        <header class="mb-12">
+            <div class="sic-header">
+                <div class="sic-logo-placeholder">LOGO SIC</div>
+            </div>
+            <div class="header-title-group text-center">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: #A31A36;">Análisis de Contratación y Tendencias del Sector</h1>
+                <p class="text-md md:text-lg" style="color: #555555;">Superintendencia de Industria y Comercio - Informe Ejecutivo 2025</p>
+            </div>
+        </header>
+
+        <section id="panorama-general" class="mb-16">
+            <h2 class="section-title">Panorama General de la Contratación</h2>
+            <p class="section-subtitle">Indicadores clave que resumen la actividad contractual de la entidad, reflejando el dinamismo y la escala de las operaciones.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #A31A36;">📄</div>
+                    <div class="stat-value">1,307</div>
+                    <div class="stat-label">Total Contratos Válidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #FFD900;">💰</div>
+                    <div class="stat-value">$93.06 Mil Mill.</div>
+                    <div class="stat-label">Monto Total Contratos Válidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #0033A0;">👥</div>
+                    <div class="stat-value">1,223</div>
+                    <div class="stat-label">Contratistas Únicos (SECOP)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #A31A36;">🛠️</div>
+                    <div class="stat-value">1,125</div>
+                    <div class="stat-label">Contratos "En Ejecución"</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="distribucion-area" class="mb-16">
+            <h2 class="section-title">Distribución por Área/Delegatura</h2>
+            <p class="section-subtitle">Análisis de cómo se distribuye la actividad contractual entre las diferentes áreas, identificando focos de mayor valor (basado en contratistas frecuentes).</p>
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8"> 
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-4 text-center" style="color: #A31A36;">Top 5 Áreas por Valor Total Contratado</h3>
+                    <div class="chart-container">
+                        <canvas id="valorPorAreaChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4 text-center">Muestra las áreas con mayor inversión en contratos adjudicados a contratistas frecuentes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contratistas-destacados-multiples" class="mb-16">
+            <h2 class="section-title">Perfil de Contratistas Destacados</h2>
+            <p class="section-subtitle">Identificación de los principales contratistas basados en el valor total de sus adjudicaciones, enfocándose en aquellos con múltiples contratos (específicamente dos contratos válidos según el informe).</p>
+            <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                <h3 class="text-xl font-semibold mb-4 text-center" style="color: #A31A36;">Top 5 Contratistas con Múltiples Contratos (2) por Valor Total</h3>
+                <div class="chart-container" style="max-width: 700px;">
+                    <canvas id="topContratistasChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-4 text-center">Estos contratistas han sido adjudicatarios de dos contratos válidos. El gráfico muestra el valor acumulado de dichos contratos.</p>
+            </div>
+        </section>
+        
+        <section id="multiples-adjudicaciones-detalle" class="mb-16">
+            <h2 class="section-title">Contratistas con Múltiples Adjudicaciones (Muestra Detallada)</h2>
+            <p class="section-subtitle">El informe original lista un número considerable de contratistas con dos contratos válidos. A continuación, se presenta una muestra de estos contratistas, destacando su información clave.</p>
+            <div class="table-container">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #A31A36;">Doc. SECOP</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #A31A36;">Nombre Contratista</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" style="color: #A31A36;">Cant. Contratos</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style="color: #A31A36;">Valor Total Contratos</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">39629756</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Adriana Vanessa Gamboa Castro</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$270,400,000</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">80773850</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">JORGE DIEGO FORERO GONZALEZ</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$233,579,200</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1014217628</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">SEBASTIÍAN HERNÁNDEZ LOZANO</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$212,653,800</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1010230425</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">MARÍA CRISTINA QUINTERO RIVEROS</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$199,213,333</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1000623063</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">SARA XIMENA PINZON RESTREPO</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$148,029,357</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">51782012</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">MARIA VICTORIA CORDOBA QUINTERO</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$143,565,333</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1031133627</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">MICHAEL RODRIGO BLANCO SÁNCHEZ</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$134,821,400</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">52540982</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">NATALIA TORO LOPEZ</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$126,776,000</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1018451927</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Fabio David Hernandez Martinez</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$122,650,000</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1018449527</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">ADRIANA CAMILA GÓMEZ BERNAL</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$116,638,485</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1020751798</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">ANGELICA MARIA VILLASMIL JAIME</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$114,253,867</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">79784736</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">PABLO MAURICIO SARMIENTO DELGADILLO</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">2</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">$114,000,000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+             <p class="text-sm text-gray-600 mt-4 text-center">Esta tabla muestra una selección de contratistas con dos contratos válidos, ordenados por valor total. El informe completo contiene una lista más extensa.</p>
+        </section>
+
+        <section id="conclusiones-tendencias" class="mb-12">
+            <h2 class="section-title">Conclusiones y Tendencias Observadas</h2>
+            <p class="section-subtitle">Los datos analizados sugieren varias tendencias y áreas de enfoque estratégico para la gestión contractual de la entidad.</p>
+            <div class="space-y-6">
+                <div class="conclusion-item flex items-start" style="border-left-color: #A31A36;">
+                    <span class="conclusion-icon" style="color: #A31A36;">🎯</span>
+                    <div>
+                        <h4 class="font-semibold text-lg" style="color: #A31A36;">Alta Concentración Sectorial</h4>
+                        <p class="text-gray-700">El área <strong style="color:#A31A36">JURISDICCIONAL</strong> domina significativamente en valor contratado por contratistas frecuentes, indicando una alta demanda o especialización en este sector.</p>
+                    </div>
+                </div>
+                <div class="conclusion-item flex items-start" style="border-left-color: #FFD900;">
+                    <span class="conclusion-icon" style="color: #FFD900;">🔁</span>
+                    <div>
+                        <h4 class="font-semibold text-lg" style="color: #A31A36;">Adjudicaciones Múltiples Recurrentes</h4>
+                        <p class="text-gray-700">Se identifica un patrón claro de contratistas que obtienen múltiples adjudicaciones, siendo común la asignación de dos contratos. Esto podría reflejar la existencia de proveedores especializados y eficientes, aunque también plantea la importancia de fomentar una base de proveedores diversa y competitiva.</p>
+                    </div>
+                </div>
+                <div class="conclusion-item flex items-start" style="border-left-color: #0033A0;">
+                    <span class="conclusion-icon" style="color: #0033A0;">📈</span>
+                    <div>
+                        <h4 class="font-semibold text-lg" style="color: #A31A36;">Gestión Activa y Dinámica de Contratos</h4>
+                        <p class="text-gray-700">Un alto porcentaje de contratos (1,125 de 1,307 válidos) se encuentran "En Ejecución", lo que demuestra una gestión contractual dinámica y en curso, esencial para la operatividad de la entidad.</p>
+                    </div>
+                </div>
+                <div class="conclusion-item flex items-start" style="border-left-color: #A31A36;">
+                    <span class="conclusion-icon" style="color: #A31A36;">💡</span>
+                    <div>
+                        <h4 class="font-semibold text-lg" style="color: #A31A36;">Oportunidad de Optimización en Procesos</h4>
+                        <p class="text-gray-700">Aunque el número de contratos rechazados es relativamente bajo (13), su valor económico acumulado (aproximadamente $642.5 Millones) es considerable. Esto sugiere una oportunidad para refinar los procesos de evaluación y selección contractual para minimizar pérdidas y optimizar el uso de los recursos públicos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center mt-16 pt-8 border-t border-gray-300">
+            <p class="text-sm text-gray-600">Fuente: Documento "Análisis Avanzado de Contratistas" (PDF Suministrado).</p>
+            <p class="text-sm text-gray-600">Infografía generada el: 30 de mayo de 2025.</p>
+            <p class="text-xs text-gray-500 mt-2">Superintendencia de Industria y Comercio - Colombia</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function wrapLabels(label, maxLength) {
+            if (typeof label !== 'string' || label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxLength && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+        
+        const sicColours = {
+            vinotinto: '#A31A36',
+            amarillo: '#FFD900',
+            azul: '#0033A0',
+            grisOscuro: '#333333',
+            grisMedio: '#555555',
+            // Colores adicionales para gráficos si se necesitan más de 3-4 series
+            complementario1: '#4A90E2', // Un azul más claro
+            complementario2: '#F5A623'  // Un naranja
+        };
+
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            family: 'Inter',
+                            size: 12
+                        },
+                        color: sicColours.grisOscuro
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    },
+                    bodyFont: {
+                        family: 'Inter'
+                    },
+                    titleFont: {
+                        family: 'Inter'
+                    },
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#FFFFFF',
+                    bodyColor: '#FFFFFF',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            family: 'Inter',
+                            size: 11
+                        },
+                        color: sicColours.grisMedio,
+                        callback: function(value) {
+                            if (value >= 1000000000) return (value / 1000000000) + ' Mil M';
+                            if (value >= 1000000) return (value / 1000000) + ' M';
+                            if (value >= 1000) return (value / 1000) + ' K';
+                            return value;
+                        }
+                    },
+                    grid: {
+                        color: '#E0E0E0' 
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            family: 'Inter',
+                            size: 11
+                        },
+                        color: sicColours.grisMedio
+                    },
+                     grid: {
+                        display: false 
+                    }
+                }
+            }
+        };
+
+        const chartBackgroundColors = [
+            sicColours.vinotinto, 
+            sicColours.amarillo, 
+            sicColours.azul, 
+            sicColours.complementario1, 
+            sicColours.complementario2
+        ];
+
+        const valorPorAreaCtx = document.getElementById('valorPorAreaChart').getContext('2d');
+        new Chart(valorPorAreaCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    wrapLabels('JURISDICCIONAL', 16), 
+                    wrapLabels('JURÍDICA', 16), 
+                    wrapLabels('COMPETENCIA', 16), 
+                    wrapLabels('CONSUMIDOR', 16), 
+                    wrapLabels('DATOS PERSONALES', 16)
+                ],
+                datasets: [{
+                    label: 'Valor Total Contratado (Millones COP)',
+                    data: [1485.54, 977.35, 668.56, 510.05, 422.85],
+                    backgroundColor: chartBackgroundColors,
+                    borderColor: chartBackgroundColors.map(color => Chart.helpers.color(color).darken(0.1).rgbString()),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    hoverBackgroundColor: chartBackgroundColors.map(color => Chart.helpers.color(color).alpha(0.8).rgbString())
+                }]
+            },
+            options: { ...commonChartOptions, scales: {...commonChartOptions.scales, y: {...commonChartOptions.scales.y, ticks: {...commonChartOptions.scales.y.ticks, callback: function(value) { return '$' + value + ' M';}}}}}
+        });
+
+        const topContratistasCtx = document.getElementById('topContratistasChart').getContext('2d');
+        new Chart(topContratistasCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    wrapLabels('Adriana Vanessa Gamboa Castro', 16), 
+                    wrapLabels('JORGE DIEGO FORERO GONZALEZ', 16), 
+                    wrapLabels('SEBASTIÍAN HERNÁNDEZ LOZANO', 16), 
+                    wrapLabels('MARÍA CRISTINA QUINTERO RIVEROS', 16), 
+                    wrapLabels('SARA XIMENA PINZON RESTREPO', 16)
+                ],
+                datasets: [{
+                    label: 'Valor Total de sus Contratos Válidos (Millones COP)',
+                    data: [270.40, 233.58, 212.65, 199.21, 148.03],
+                    backgroundColor: chartBackgroundColors,
+                    borderColor: chartBackgroundColors.map(color => Chart.helpers.color(color).darken(0.1).rgbString()),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    hoverBackgroundColor: chartBackgroundColors.map(color => Chart.helpers.color(color).alpha(0.8).rgbString())
+                }]
+            },
+             options: { ...commonChartOptions, indexAxis: 'y', scales: {...commonChartOptions.scales, x: {...commonChartOptions.scales.x, ticks: {...commonChartOptions.scales.x.ticks, callback: function(value) { return '$' + value + ' M';}}}}}
+        });
+
+    </script>
+</body>
+</html>
